@@ -25,7 +25,7 @@ class AutovipClient(blivedm.BLiveClient):
         
     def _checkpoint(self):
         current_time = self._now().strftime('%Y_%m_%d-%H_%M_%S')
-        filename = 'Membership-%s-%s.xls' % (self.start_time, current_time)
+        filename = 'log/Membership-%s-%s.xls' % (self.start_time, current_time)
         self.workbook.save(filename)
         if self.last_checkpoint_filename is not None and os.path.isfile(self.last_checkpoint_filename):
             os.remove(self.last_checkpoint_filename)
