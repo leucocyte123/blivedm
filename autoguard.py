@@ -11,7 +11,7 @@ import asyncio
 
 import blivedm
 
-from update import updateGuardInfo
+from update import summary, createSummary, updateGuardInfo
 
 
 class AutovipClient(blivedm.BLiveClient):
@@ -98,4 +98,7 @@ async def main():
 
 
 if __name__ == '__main__':
+    if not os.path.isfile(summary.filename):
+        createSummary()
+
     asyncio.get_event_loop().run_until_complete(main())

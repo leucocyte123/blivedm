@@ -34,6 +34,7 @@ summary = WorkbookMetadata(
 
 _level_to_text = {0: '非舰长', 1: '总督', 2: '提督', 3: '舰长'}
 _level_to_num = {0: 0, 1: 100, 2: 10, 3: 1}
+_text_to_num = {'非舰长': 0, '总督': 100, '提督': 10, '舰长': 1}
 
 def _now():
     return datetime.now(timezone(timedelta(hours=8)))
@@ -52,7 +53,8 @@ def checkSheetExist(filename: str, sheetname: str):
         worksheet = workbook[sheetname]
         return workbook, worksheet
     except:
-        worksheet = workbook.create_sheet(sheetname)
+        workbook.active.title = sheetname
+        worksheet = workbook.active
         for record in [guard_info, guard_bonus, summary]:
             if filename == record.filename and sheetname == record.sheetname:
                 for index, item in enumerate(record.head):
@@ -81,15 +83,15 @@ def getGuardInfo():
     accumulated_num = {}
     id_to_username = {}
     for row in list(worksheet.rows)[1:]:
-        username = row[1]
-        uid = row[2]
-        plus_num = _level_to_num[row[5]] * row[6]
+        username = row[1].value
+        uid = row[2].value
+        plus_num = _text_to_num[row[5].value] * row[6].value
 
         id_to_username[uid] = username
         
         if uid not in accumulated_num:
             accumulated_num[uid] = 0
-        accumulated_num = accumulated_num[uid] + plus_num
+        accumulated_num[uid] = accumulated_num[uid] + plus_num
 
     return id_to_username, accumulated_num
 
@@ -98,20 +100,20 @@ def getGuardBonus():
     _, worksheet = checkSheetExist(guard_bonus.filename, guard_bonus.sheetname)
     accumulated_bonus = {}
     for row in list(worksheet.rows)[1:]:
-        uid = row[1]
-        plus_bonus = row[4]
+        uid = row[1].value
+        plus_bonus = row[4].value
         if uid not in accumulated_bonus:
             accumulated_bonus[uid] = 0
         accumulated_bonus[uid] = accumulated_bonus[uid] + plus_bonus
     return accumulated_bonus
 
-def createSummary(message:saveGuardMessage):
+def createSummary():
     # ['B站昵称', 'UID', '累计舰长次数', '已兑换', '剩余次数']
 
     id_to_username, accumualted_num = getGuardInfo()
     accumualted_bonus = getGuardBonus()
 
-    workbook, worksheet = checkSheetExist(guard_bonus.filename, guard_bonus.sheetname)
+    workbook, worksheet = checkSheetExist(summary.filename, summary.sheetname)
     for uid in accumualted_num:
         if uid not in accumualted_bonus:
             accumualted_bonus[uid] = 0
@@ -125,16 +127,16 @@ def createSummary(message:saveGuardMessage):
     workbook.save(summary.filename)
 
 def updateSummary(message: GuardBuyMessage):
-    workbook, worksheet = checkSheetExist(guard_bonus.filename, guard_bonus.sheetname)
+    workbook, worksheet = checkSheetExist(summary.filename, summary.sheetname)
 
     uid = message.uid
     plus_num = _level_to_num[message.guard_level] * message.num
 
     # Scan all the items. If there is already a record for the user, then update it.
     for row in list(worksheet.rows):
-        if row[1] == uid:
-            row[2] = row[2] + plus_num
-            row[4] = row[4] + plus_num
+        if row[1].value == uid:
+            row[2].value = row[2].value + plus_num
+            row[4].value = row[4].value + plus_num
             return
     
     # If there is no record for the user, then create a new record.
@@ -154,5 +156,5 @@ def updateGuardInfo(message: GuardBuyMessage):
 
     # Create or update the summary information
     if not os.path.isfile(summary.filename):
-        createSummary(message)
+        createSummary()
     updateSummary(message)
