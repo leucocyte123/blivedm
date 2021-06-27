@@ -11,37 +11,39 @@ import asyncio
 
 import blivedm
 
+from update import updateGuardInfo
+
 
 class AutovipClient(blivedm.BLiveClient):
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
-        self.start_time = self._now().strftime('%Y_%m_%d_%H_%M_%S')
-        self.last_checkpoint_filename = None
-        self.workbook = Workbook()
-        self.sheet = self.workbook.add_sheet('Membership')
-        self.membership_count = 0
-        self._add_to_sheet(['弹幕编号', 'B站ID', 'UID', '日期', '时间', '等级', '数量'])
-        self.test_count = 0
+        # self.start_time = self._now().strftime('%Y_%m_%d_%H_%M_%S')
+        # self.last_checkpoint_filename = None
+        # self.workbook = Workbook()
+        # self.sheet = self.workbook.add_sheet('Membership')
+        # self.membership_count = 0
+        # self._add_to_sheet(['弹幕编号', 'B站ID', 'UID', '日期', '时间', '等级', '数量'])
+        # self.test_count = 0
         
-    def _checkpoint(self):
-        current_time = self._now().strftime('%Y_%m_%d-%H_%M_%S')
-        filename = 'log/Membership-%s-%s.xls' % (self.start_time, current_time)
-        self.workbook.save(filename)
-        if self.last_checkpoint_filename is not None and os.path.isfile(self.last_checkpoint_filename):
-            os.remove(self.last_checkpoint_filename)
-        self.last_checkpoint_filename = filename
+    # def _checkpoint(self):
+    #     current_time = self._now().strftime('%Y_%m_%d-%H_%M_%S')
+    #     filename = 'log/Membership-%s-%s.xls' % (self.start_time, current_time)
+    #     self.workbook.save(filename)
+    #     if self.last_checkpoint_filename is not None and os.path.isfile(self.last_checkpoint_filename):
+    #         os.remove(self.last_checkpoint_filename)
+    #     self.last_checkpoint_filename = filename
 
-    def _now(self):
-        return datetime.now(timezone(timedelta(hours=8))) # Set timezone to Beiing time
+    # def _now(self):
+    #     return datetime.now(timezone(timedelta(hours=8))) # Set timezone to Beiing time
 
-    def _level_to_text(self, level):
-        level_map = {0: '非舰长', 1: '总督', 2: '提督', 3: '舰长'}
-        return level_map[level]
+    # def _level_to_text(self, level):
+    #     level_map = {0: '非舰长', 1: '总督', 2: '提督', 3: '舰长'}
+    #     return level_map[level]
 
-    def _add_to_sheet(self, content: list):
-        for index, item in enumerate(content):
-            self.sheet.write(self.membership_count, index, item)
-        self.membership_count += 1
+    # def _add_to_sheet(self, content: list):
+    #     for index, item in enumerate(content):
+    #         self.sheet.write(self.membership_count, index, item)
+    #     self.membership_count += 1
     
     # def _create_test_record(self, message: blivedm.DanmakuMessage):
     #     self._add_to_sheet([
@@ -57,16 +59,16 @@ class AutovipClient(blivedm.BLiveClient):
     #         self._checkpoint()
     #         self.test_count = 0
 
-    def _create_record(self, message: blivedm.GuardBuyMessage):
-        self._add_to_sheet([
-            '%s-%s-%d-%d' % (message.uid, self._now().strftime('%Y_%m_%d_%H_%M_%S'), message.start_time, message.end_time),
-            message.username, 
-            message.uid, 
-            self._now().strftime('%Y-%m-%d'), 
-            self._now().strftime('%H:%M:%S'), 
-            self._level_to_text(message.guard_level), 
-            message.num])
-        self._checkpoint()
+    # def _create_record(self, message: blivedm.GuardBuyMessage):
+    #     self._add_to_sheet([
+    #         '%s-%s-%d-%d' % (message.uid, self._now().strftime('%Y_%m_%d_%H_%M_%S'), message.start_time, message.end_time),
+    #         message.username, 
+    #         message.uid, 
+    #         self._now().strftime('%Y-%m-%d'), 
+    #         self._now().strftime('%H:%M:%S'), 
+    #         self._level_to_text(message.guard_level), 
+    #         message.num])
+    #     self._checkpoint()
 
     # async def _on_receive_danmaku(self, danmaku: blivedm.DanmakuMessage):
     #     print(f'{danmaku.uname}：{danmaku.msg}')
@@ -74,7 +76,7 @@ class AutovipClient(blivedm.BLiveClient):
 
     async def _on_buy_guard(self, message: blivedm.GuardBuyMessage):
         print(f'{message.username} 购买{message.gift_name}')
-        self._create_record(message)
+        updateGuardInfo(message)
 
 
 async def main():

@@ -629,8 +629,8 @@ class BLiveClient:
 
             else:
                 body = data[offset + HEADER_STRUCT.size: offset + header.pack_len]
-                logger.warning('room %d 未知包类型：operation=%d %s%s', self.room_id,
-                               header.operation, header, body)
+                # logger.warning('room %d 未知包类型：operation=%d %s%s', self.room_id,
+                #                header.operation, header, body)
 
             offset += header.pack_len
 
@@ -649,7 +649,7 @@ class BLiveClient:
             if handler is not None:
                 await handler(self, command)
         else:
-            logger.warning('room %d 未知命令：cmd=%s %s', self.room_id, cmd, command)
+            # logger.warning('room %d 未知命令：cmd=%s %s', self.room_id, cmd, command)
             # 只有第一次遇到未知命令时log
             self._COMMAND_HANDLERS[cmd] = None
 

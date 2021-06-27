@@ -113,6 +113,8 @@ def createSummary(message:saveGuardMessage):
 
     workbook, worksheet = checkSheetExist(guard_bonus.filename, guard_bonus.sheetname)
     for uid in accumualted_num:
+        if uid not in accumualted_bonus:
+            accumualted_bonus[uid] = 0
         worksheet.append([
             id_to_username[uid],
             uid,
