@@ -66,7 +66,7 @@ def checkSheetExist(filename: str, sheetname: str):
 def saveGuardMessage(message: GuardBuyMessage):
     workbook, worksheet = checkSheetExist(guard_info.filename, guard_info.sheetname)
     worksheet.append([
-        '%s-%s-%d-%d' % (message.uid, _now().strftime('%Y_%m_%d_%H_%M_%S'), message.start_time, message.end_time),
+        '%s-%d' % (message.uid, message.end_time),
         message.username, 
         message.uid, 
         _now().strftime('%Y-%m-%d'), 
