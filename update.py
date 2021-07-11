@@ -137,6 +137,7 @@ def updateSummary(message: GuardBuyMessage):
         if row[1].value == uid:
             row[2].value = row[2].value + plus_num
             row[4].value = row[4].value + plus_num
+            workbook.save(summary.filename)
             return
     
     # If there is no record for the user, then create a new record.
